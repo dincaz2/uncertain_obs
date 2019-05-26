@@ -1,0 +1,20 @@
+System Format
+----------------------
+<System ID>.
+[<System Inputs List> ... ].
+[<System Outputs List> ... ].
+[<System Gates List> ... ].
+[<Sections List> ... ].
+[<Cones List> ... ].
+
+Gate Format
+-----------------------
+(GateID, Output, Inputs[], LogicType, GateType)
+
+Section Format
+-----------------------
+(SectionID, GatesIDs[], UNhealthyUpperBound)
+
+Cone Format
+-----------------------
+(DominatorID, DominatedIDs[])
