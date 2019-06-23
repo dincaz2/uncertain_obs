@@ -1,7 +1,7 @@
-from utils.diagnoser_utils import *
-from structures.trie import *
-from utils import prob_utils
-import operator
+from circuits.utils.diagnoser_utils import *
+from circuits.structures.trie import *
+from circuits.utils import prob_utils
+
 
 def find_best_diagnose(inputs, orig_outputs, components, outputs_names, faulty_comp_prob, faulty_output_prob):
     prob_sum = 1

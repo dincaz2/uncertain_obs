@@ -1,8 +1,7 @@
 import os
-from prob_based import best_diagnoser as best_diagnoser
-from utils import model_parser as bfs_model_parser, obs_parser as bfs_obs_parser
-from prob_based import diagnoser as bfs_diagnoser
-from prob_based import obs_from_diagnoses as bfs_obs_from_diagnoses
+from circuits.utils import obs_parser as bfs_obs_parser, model_parser as bfs_model_parser
+from circuits.prob_based import obs_from_diagnoses as bfs_obs_from_diagnoses, diagnoser as bfs_diagnoser, \
+    best_diagnoser as best_diagnoser
 from flip_based import best_diagnoser as noise_best_diagnoser
 from flip_based import diagnoser as noise_diagnoser
 from flip_based import obs_from_diagnoses as noise_obs_from_diagnoses

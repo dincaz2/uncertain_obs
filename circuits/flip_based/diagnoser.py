@@ -1,17 +1,16 @@
-from utils.diagnoser_utils import *
-from structures.trie import *
-from utils import prob_utils
+from circuits.utils.diagnoser_utils import *
+from circuits.structures.trie import *
+from circuits.utils import prob_utils
 
 
-def diagnose_all_combinations(inputs, components, outputs_names, probs, faulty_comp_prob):
-    diagnoses_dict = {}
-    for outputs in prob_utils.observations_iterator(probs):
-        diagnoses = diagnose(inputs, outputs, components)
-        out_str = output_string(outputs, outputs_names)
-        diagnoses_dict[out_str] = diagnoses
-    return finalize(diagnoses_dict, probs, outputs_names, faulty_comp_prob)
+def diagnose_all_combinations(inputs, orig_outputs, components, outputs_names, faulty_comp_prob, faulty_output_prob):
+    diagnoses = []
+    for outputs, obs_prob in prob_utils.observation_lexicographic_iterator(orig_outputs, faulty_output_prob):
+        obs_diagnoses = diagnose(inputs, outputs, components, outputs_names)
+        diagnoses += calc_diagnoses_probs_given_obs_prob(obs_diagnoses, faulty_comp_prob, obs_prob)
+    return diagnoses
 
-def diagnose(inputs, outputs, components):
+def diagnose(inputs, outputs, components, outputs_names):
     # print(f'\ndiagnosing outputs {outputs}')
     diagnoses = []
     diagnoses_trie = make_trie()
@@ -32,7 +31,7 @@ def diagnose(inputs, outputs, components):
             comp.healthy = True
 
         # check consistency
-        consistent = all(outputs[name] == values[name] for name in outputs.keys())
+        consistent = all(outputs[i] == values[name] for i,name in enumerate(outputs_names))
         if consistent:
             diagnoses.append(suspected_diagnose)
             add_to_trie(diagnoses_trie, suspected_diagnose)

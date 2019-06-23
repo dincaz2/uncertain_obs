@@ -1,16 +1,21 @@
-from utils.diagnoser_utils import *
-from structures.trie import *
-from utils import prob_utils
+from circuits.utils.diagnoser_utils import *
+from circuits.structures.trie import *
+from circuits.utils import prob_utils
+import operator
 
+def find_best_diagnose(inputs, components, outputs_names, probs, faulty_comp_prob):
+    prob_sum = 1
+    max_prob_diagnose = (None, 0)
+    for outputs in prob_utils.observations_iterator(probs):
+        diagnoses = diagnose(inputs, outputs, components)
+        diagnoses_with_prob, obs_prob = calc_observation_diagnoses_probs(outputs, diagnoses, probs, outputs_names, faulty_comp_prob)
+        prob_sum -= obs_prob
+        max_prob_diagnose = max(diagnoses_with_prob + [max_prob_diagnose], key=operator.itemgetter(1))
+        if max_prob_diagnose[1] >= prob_sum:
+            return max_prob_diagnose
+    return None
 
-def diagnose_all_combinations(inputs, orig_outputs, components, outputs_names, faulty_comp_prob, faulty_output_prob):
-    diagnoses = []
-    for outputs, obs_prob in prob_utils.observation_lexicographic_iterator(orig_outputs, faulty_output_prob):
-        obs_diagnoses = diagnose(inputs, outputs, components, outputs_names)
-        diagnoses += calc_diagnoses_probs_given_obs_prob(obs_diagnoses, faulty_comp_prob, obs_prob)
-    return diagnoses
-
-def diagnose(inputs, outputs, components, outputs_names):
+def diagnose(inputs, outputs, components):
     # print(f'\ndiagnosing outputs {outputs}')
     diagnoses = []
     diagnoses_trie = make_trie()
@@ -31,7 +36,7 @@ def diagnose(inputs, outputs, components, outputs_names):
             comp.healthy = True
 
         # check consistency
-        consistent = all(outputs[i] == values[name] for i,name in enumerate(outputs_names))
+        consistent = all(outputs[name] == values[name] for name in outputs.keys())
         if consistent:
             diagnoses.append(suspected_diagnose)
             add_to_trie(diagnoses_trie, suspected_diagnose)

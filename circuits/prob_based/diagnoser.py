@@ -1,19 +1,15 @@
-from utils.diagnoser_utils import *
-from structures.trie import *
-from utils import prob_utils
-import operator
+from circuits.utils.diagnoser_utils import *
+from circuits.structures.trie import *
+from circuits.utils import prob_utils
 
-def find_best_diagnose(inputs, components, outputs_names, probs, faulty_comp_prob):
-    prob_sum = 1
-    max_prob_diagnose = (None, 0)
+
+def diagnose_all_combinations(inputs, components, outputs_names, probs, faulty_comp_prob):
+    diagnoses_dict = {}
     for outputs in prob_utils.observations_iterator(probs):
         diagnoses = diagnose(inputs, outputs, components)
-        diagnoses_with_prob, obs_prob = calc_observation_diagnoses_probs(outputs, diagnoses, probs, outputs_names, faulty_comp_prob)
-        prob_sum -= obs_prob
-        max_prob_diagnose = max(diagnoses_with_prob + [max_prob_diagnose], key=operator.itemgetter(1))
-        if max_prob_diagnose[1] >= prob_sum:
-            return max_prob_diagnose
-    return None
+        out_str = output_string(outputs, outputs_names)
+        diagnoses_dict[out_str] = diagnoses
+    return finalize(diagnoses_dict, probs, outputs_names, faulty_comp_prob)
 
 def diagnose(inputs, outputs, components):
     # print(f'\ndiagnosing outputs {outputs}')

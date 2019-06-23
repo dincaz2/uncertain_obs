@@ -1,6 +1,6 @@
-from utils.diagnoser_utils import *
-from utils.prob_utils import *
-from structures.trie import *
+from circuits.utils.diagnoser_utils import *
+from circuits.utils.prob_utils import *
+from circuits.structures.trie import *
 
 def diagnose_all_combinations(inputs, orig_outputs, components, outputs_names, faulty_comp_prob, faulty_output_prob):
     diagnoses = {}

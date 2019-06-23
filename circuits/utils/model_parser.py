@@ -1,4 +1,4 @@
-from structures.gate import Gate
+from circuits.structures.gate import Gate
 
 def parse_file(model_path):
     with open(model_path) as f:
