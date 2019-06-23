@@ -275,5 +275,4 @@ fabric.properties
 # End of https://www.gitignore.io/api/pycharm,python,django
 
 circuits/output/black_box/
-*/*/black_box/
-*/*/black_box
+output/black_box/
