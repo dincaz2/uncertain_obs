@@ -1,4 +1,5 @@
 from collections import deque
+from circuits.structures.trie import *
 
 def finalize(diagnoses_dict, probs, outputs_names, faulty_comp_prob):
     final_diagnoses = []
@@ -71,3 +72,45 @@ def diagnoses_iterator(components):
             continue
         for index, input in enumerate(components[max_in_subset + 1:]):
             queue.append((subset + [input], index + max_in_subset + 1))
+
+
+def diagnose_obs(inputs, outputs, components, outputs_names):
+    # print(f'\ndiagnosing outputs {outputs}')
+    diagnoses = []
+    diagnoses_trie = make_trie()
+
+    queue = deque([([], -1)])
+    length = len(components)
+    while queue:
+        suspected_diagnose, max_in_subset = queue.popleft()
+        if check_trie_for_subsets(diagnoses_trie, suspected_diagnose):
+            continue
+        # print(f'checking diagnose {[comp.name for comp in suspected_diagnose]}')
+
+        for comp in suspected_diagnose:
+            comp.healthy = False
+        values = inputs.copy()
+        propogate_values(values, components)
+        for comp in suspected_diagnose:
+            comp.healthy = True
+
+        # check consistency
+        consistent = all(outputs[i] == values[name] for i,name in enumerate(outputs_names))
+        if consistent:
+            diagnoses.append(suspected_diagnose)
+            add_to_trie(diagnoses_trie, suspected_diagnose)
+        elif max_in_subset < length - 1:
+            for index, comp in enumerate(components[max_in_subset + 1:]):
+                queue.append((suspected_diagnose + [comp], index + max_in_subset + 1))
+    return diagnoses
+
+
+
+
+
+
+
+
+
+
+

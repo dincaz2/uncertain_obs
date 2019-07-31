@@ -76,11 +76,17 @@ def observation_lexicographic_iterator(orig_outputs, p):
     length = len(orig_outputs)
     # outputs = [orig_outputs[f'o{index+1}'] for index in range(length)]
     queue = deque([(orig_outputs, -1, 0)])
-    normalization_val = calc_normalization_val(length, p)
+
+    old_num_of_flips = -1
+    old_obs_prob = -1
 
     while queue:
         outputs, max_in_subset, num_of_flips = queue.popleft()
-        yield outputs, binom(length, p, num_of_flips)
+        obs_prob = old_obs_prob if num_of_flips == old_num_of_flips else binom(length, p, num_of_flips)
+        old_obs_prob = obs_prob
+        old_num_of_flips = num_of_flips
+
+        yield outputs, obs_prob
         if max_in_subset == length - 1:
             continue
         for i in range(length - max_in_subset - 1):

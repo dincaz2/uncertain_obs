@@ -276,3 +276,6 @@ fabric.properties
 
 circuits/output/black_box/
 output/black_box/
+software/sfl_diagnoser/Diagnoser/.idea/
+software/sfl_diagnoser/Diagnoser/planning_example/
+software/sfl_diagnoser/Planner/
