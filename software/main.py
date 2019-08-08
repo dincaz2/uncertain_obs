@@ -13,7 +13,8 @@ matrices_folder = 'matrices'
 matrix_file_suffix = '.matrix'
 results_folder_path = r"output\results"
 faulty_comp_prob = 0.5
-faulty_output_probs = [0.11, 0.09, 0.07, 0.05, 0.03, 0.01]
+# faulty_output_probs = [0.11, 0.09, 0.07, 0.05, 0.03, 0.01]
+faulty_output_probs = [0.1, 0.2, 0.3, 0.4, 0.5]
 
 # inst = readPlanningFile("C:\\Users\\eyalhad\\Desktop\\SFL-diagnoser\\MatrixFile2.txt")
 # inst.diagnose()
@@ -24,12 +25,17 @@ faulty_output_probs = [0.11, 0.09, 0.07, 0.05, 0.03, 0.01]
 # i=5
 
 def file2tuple(file):
-    ncomps,ntests,nfailed,sample = list(map(int, file.split('.')[0].split('_')))
-    ncomps = ncomps + 100 if sample>10 else ncomps
-    return ncomps,ntests,nfailed,sample
+    ncomps,ntests,sample = list(map(int, file.split('.')[0].split('_')))
+    # ncomps = ncomps + 100 if sample>10 else ncomps
+    return ncomps,ntests,sample
 
 def find_matrix_index(matrices, matrix):
     return dict(reversed(enumerate(matrices)))[matrix]
+
+def filter_low(matrix_name):
+    comps, tests = list(map(int, matrix_name.split('_')[:2]))
+    # return 7 <= comps <= 9 and 7 <= tests <= 9
+    return comps == 14 or tests == 14
 
 def pipeline(folder, output):
     # matrices = [a for a in
@@ -50,15 +56,16 @@ def pipeline(folder, output):
     matrices = [file for file in os.listdir(folder) if file.endswith(matrix_file_suffix)]
     matrices = sorted(matrices, key=file2tuple) # for logic traversal of matrices. also taking only 10 samples instead of 20
     print(f'total of {len(matrices)} matrices')
-    last_crash = '14_14_2_6.matrix'
-    from_index = dict(map(reversed,enumerate(matrices)))[last_crash]
-    matrices = matrices[from_index:]
+    # last_crash = '14_14_6.matrix'
+    # from_index = dict(map(reversed,enumerate(matrices)))[last_crash]
+    # matrices = matrices[from_index:]
+    matrices = list(filter(filter_low, matrices))
     print(f'remaining {len(matrices)} matrices')
     # print(matrices[0])
     # return
     with open(output, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(('matrix_name', '#components', '#tests', '#failing_tests', '#uncertain_tests', 'faulty_output_prob', 'error_vector',
+        writer.writerow(('matrix_name', 'sample', '#components', '#tests', '#failing_tests', '#uncertain_tests', 'faulty_output_prob', 'error_vector',
                          'scan_all_obs_time', 'scan_all_diags_time', 'scan_best_obs_time',
                          'scan_all_obs_best_cardinality', 'scan_all_diags_best_cardinality', 'scan_best_obs_best_cardinality',
                          'scan_all_obs_mean_cardinality', 'scan_all_diags_mean_cardinality', 'scan_best_obs_mean_cardinality',
@@ -76,10 +83,13 @@ def pipeline(folder, output):
             all_tests = Experiment_Data().POOL.keys()
             num_of_tests = len(all_tests)
             num_failing_tests = error_vec.count(1)
+            sample_num = int(matrix_file.split('.')[0].split('_')[2])
             print(f'comps: {num_of_comps}, tests: {num_of_tests}, failing: {num_failing_tests}')
 
-            for proportion_uncertain in [0.1, 0.3, 0.5, 0.7, 1]:
-                num_uncertain = ceil(num_of_tests * proportion_uncertain)
+            # for proportion_uncertain in [0.1, 0.3, 0.5, 0.7, 1]:
+            for num_uncertain in range(7, num_of_tests + 1):
+            # for num_uncertain in range(7, 10):
+                # num_uncertain = ceil(num_of_tests * proportion_uncertain)
                 uncertain_tests = sample(all_tests, num_uncertain)
                 # print(f'time: {time()}')
                 print(f'uncertain tests: {uncertain_tests}')
@@ -96,7 +106,7 @@ def pipeline(folder, output):
                     alg3_result, alg3_time, alg3_best_diag_card, alg3_mean_card = run_best_diagnoser(inst, error, faulty_output_prob, uncertain_tests)
                     print(f'\tbest obs with faulty output prob of {faulty_output_prob}: {alg3_time} seconds')
                     print(f'\t\t{alg3_result}')
-                    writer.writerow((matrix_file, num_of_comps, num_of_tests, num_failing_tests, num_uncertain, faulty_output_prob, error_vec,
+                    writer.writerow((matrix_file, sample_num, num_of_comps, num_of_tests, num_failing_tests, num_uncertain, faulty_output_prob, error_vec,
                                      alg1_time, alg2_time, alg3_time,
                                      alg1_best_diag_card, alg2_best_diag_card, alg3_best_diag_card,
                                      alg1_mean_card, alg2_mean_card, alg3_mean_card,
@@ -139,7 +149,7 @@ if __name__ == '__main__':
     # name = 'real'
     name = 'synthetic'
     folder = os.path.join(matrices_folder, name)
-    output = os.path.join(results_folder_path, f'matrices_{name}.csv')
+    output = os.path.join(results_folder_path, f'matrices_{name}_14.csv')
     pipeline(folder, output)
     # from software.utils.matrix_generator import generate_all
     # generate_all()
