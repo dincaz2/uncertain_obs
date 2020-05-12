@@ -24,6 +24,7 @@ def readMatrixWithProbabilitiesFile(fileName):
     return ans
 
 def cut_matrix(test_pool, error, all_comps, initials):
+    # keeping only components touching failing tests, and tests touched by these components
     test_pool = test_pool.copy()
     failing_tests = set(test for test, out in error.items() if out == 1)
     all_touching_comps = set()
@@ -52,7 +53,7 @@ def readPlanningFile(fileName, delimiter=";", cut=False):
     bugs=eval(BugsStr[0])
     initials=eval(InitialsStr[0])
     try:
-        components = dict(map(lambda x: x if isinstance(x, tuple) else eval(x), eval(components_names[0].replace(delimiter, ','))))
+        components = dict(map(lambda x: x if isinstance(x, tuple) else eval(x), eval(components_names[0].replace(delimiter, ',') + ',')))
     except:
         components = dict(eval(eval(components_names[0].replace(delimiter, ','))))
     testsPool={}
@@ -73,10 +74,12 @@ def readPlanningFile(fileName, delimiter=";", cut=False):
 
     # testsPool['T1'] = [0,3] #TODO: delete
     # testsPool['T3'] = [2,3]
+    old = None
     if cut:
+        old = components, initials
         testsPool, error, components, initials = cut_matrix(testsPool, error, components, initials)
     Experiment_Data().set_values(priors, bugs, testsPool, components, estimatedTestsPool)
-    return partial(software.sfl_diagnoser.Diagnoser.ExperimentInstance.ExperimentInstance, initials), error, initials
+    return partial(software.sfl_diagnoser.Diagnoser.ExperimentInstance.ExperimentInstance, initials), error, initials, old
     # return software.sfl_diagnoser.Diagnoser.ExperimentInstance.ExperimentInstance(initials, error)
 
 
