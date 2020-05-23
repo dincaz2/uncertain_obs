@@ -33,15 +33,21 @@ def diagnose_all_combinations(error, test_names, faulty_comp_prob, faulty_output
 
         # print(comps)
 
-    obs_norm = diagnoser_utils.obs_normalization(len(uncertain_tests), faulty_output_prob)
-    normalized_diagnoses = [diagnoser_utils.calc_diagnoses_probs_given_obs_prob(obs_diags, priors, faulty_comp_prob, diagnoser_utils.observation_prob(num_of_tests, failing_tests, obs, faulty_output_prob, obs_norm)) for obs,obs_diags in diagnoses.items()]
+
+
+    # obs_norm = diagnoser_utils.obs_normalization(len(uncertain_tests), faulty_output_prob)
+    normalized_diagnoses = [diagnoser_utils.calc_diagnoses_probs_given_obs_prob(obs_diags, priors, faulty_comp_prob, diagnoser_utils.observation_prob(num_of_tests, failing_tests, obs, faulty_output_prob)) for obs,obs_diags in diagnoses.items()]
     final_diagnoses = defaultdict(lambda:0)
     for obs_diags in normalized_diagnoses:
         for diagnose, prob in obs_diags:
             final_diagnoses[diagnose] += prob
 
-    return final_diagnoses.items()
+    diagnoses_with_probs = final_diagnoses.items()
+    sum_probs = sum(prob for _, prob in diagnoses_with_probs)
+    return [(i2comp(diag, data.COMPONENTS_NAMES), prob / sum_probs) for diag, prob in diagnoses_with_probs]
 
+def i2comp(diag, comps_dict):
+    return tuple(comps_dict[i] for i in diag)
 
 def simulate(comps, reverse_comps_mapping, tests, must_pass_dict):
     """

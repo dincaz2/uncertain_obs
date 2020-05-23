@@ -2,11 +2,11 @@ __author__ = 'amir'
 
 
 class Diagnosis:
-    def __init__(self, diagnosis=None):
+    def __init__(self, diagnosis=None, prob=0.0):
         if diagnosis is None:
             diagnosis = []
         self.diagnosis = sorted(diagnosis)
-        self.probability = 0.0
+        self.probability = prob
 
     def clone(self):
         res=Diagnosis()

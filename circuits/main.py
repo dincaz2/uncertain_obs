@@ -7,6 +7,7 @@ from circuits.flip_based import diagnoser as noise_diagnoser
 from circuits.flip_based import obs_from_diagnoses as noise_obs_from_diagnoses
 import operator
 from time import time
+from datetime import datetime
 import csv
 import random
 
@@ -21,10 +22,12 @@ faulty_output_probs = [0.11, 0.09, 0.07, 0.05, 0.03, 0.01]
 
 
 def pipeline():
+    date = datetime.now().strftime("%d-%m-%Y")
+    file_suffix = f'_{date}.csv'
     # system_names = ['c17', '74182', '74283', '74181', 'c432', 'c880', 'c3540', 'c1908']
     system_names = ['c17', '74182']
-    system_names = ['c17']
-    file_template = os.path.join(results_folder_path, '{}.csv')
+    # system_names = ['c17']
+    file_template = os.path.join(results_folder_path, '{}' + file_suffix)
     for system_name in system_names:
         print(f'diagnosing system {system_name}')
         filename = file_template.format(system_name)

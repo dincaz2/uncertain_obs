@@ -76,10 +76,10 @@ class dynamicSpectrum(object):
         return ds
 
     #return diagnoses
-    def diagnose(self):
+    def diagnose(self, normalize=True):
         fullM,chosen=FullMatrix.optimize_FullMatrix(self.convertToFullMatrix())
         chosenDict=dict(enumerate(chosen))
-        Opt_diagnoses=fullM.diagnose()
+        Opt_diagnoses=fullM.diagnose(normalize)
         diagnoses=[]
         for diag in Opt_diagnoses:
             diag=diag.clone()

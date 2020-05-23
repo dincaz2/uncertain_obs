@@ -17,13 +17,13 @@ def find_matrix_index(matrices, matrix):
 def filter_low(matrix_name):
     comps, tests = list(map(int, matrix_name.split('_')[:2]))
     # return (7 <= comps <= 9 and 10 <= tests <= 13) or (7 <= tests <= 9 and 10 <= comps <= 13)
-    return comps == 14 or tests == 14
+    return comps >= 7 and tests >= 7
 
 def pipeline(folder, output):
     matrices = [file for file in os.listdir(folder) if file.endswith('.matrix')]
-    # matrices = sorted(matrices, key=file2tuple) # for logic traversal of matrices. also taking only 10 samples instead of 20
+    matrices = sorted(matrices, key=file2tuple) # for logic traversal of matrices. also taking only 10 samples instead of 20
     print(f'total of {len(matrices)} matrices')
-    # matrices = list(filter(filter_low, matrices))
+    matrices = list(filter(filter_low, matrices))
     # from_matrix = '14_14_11.matrix'
     # from_index = dict(map(reversed,enumerate(matrices)))[from_matrix]
     # to_matrix = '14_14_20.matrix'

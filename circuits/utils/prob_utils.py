@@ -96,6 +96,10 @@ def observation_lexicographic_iterator(orig_outputs, p):
             queue.append((copy, i, num_of_flips + 1))
 
 
+def diags_prob(diagnoses, faulty_comp_prob, num_comps, obs_prob):
+    return [obs_prob * binom(num_comps, faulty_comp_prob, len(diag)) for diag in diagnoses]
+
+
 def binom(n,p,k):
     x = k * np.log2(p) + (n - k) * np.log2(1 - p)
     return pow(2,x)

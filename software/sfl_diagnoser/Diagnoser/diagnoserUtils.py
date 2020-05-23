@@ -1,4 +1,5 @@
 import software.sfl_diagnoser.Diagnoser.ExperimentInstance
+from software.sfl_diagnoser.Diagnoser.FastBarinel import FastBarinel
 from software.sfl_diagnoser.Diagnoser.FullMatrix import FullMatrix
 from software.sfl_diagnoser.Diagnoser.Experiment_Data import Experiment_Data
 from functools import reduce, partial
@@ -43,7 +44,7 @@ def cut_matrix(test_pool, error, all_comps, initials):
     return test_pool, error, remaining_comps, initials
 
 
-def readPlanningFile(fileName, delimiter=";", cut=False):
+def readPlanningFile(fileName, delimiter=";", cut=False, use_smart_mhs = False):
     lines=open(fileName,"r").readlines()
     lines=[x.replace("\n","") for x in lines]
     sections=["[Description]", "[Components names]", "[Priors]","[Bugs]","[InitialTests]","[TestDetails]"]
@@ -79,7 +80,11 @@ def readPlanningFile(fileName, delimiter=";", cut=False):
         old = components, initials
         testsPool, error, components, initials = cut_matrix(testsPool, error, components, initials)
     Experiment_Data().set_values(priors, bugs, testsPool, components, estimatedTestsPool)
-    return partial(software.sfl_diagnoser.Diagnoser.ExperimentInstance.ExperimentInstance, initials), error, initials, old
+    if use_smart_mhs:
+        diagnoser = FastBarinel(initials, error)
+    else:
+        diagnoser = partial(software.sfl_diagnoser.Diagnoser.ExperimentInstance.ExperimentInstance, initials)
+    return diagnoser, error, initials, old
     # return software.sfl_diagnoser.Diagnoser.ExperimentInstance.ExperimentInstance(initials, error)
 
 

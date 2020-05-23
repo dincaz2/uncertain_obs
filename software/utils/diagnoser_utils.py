@@ -142,21 +142,14 @@ def obs_normalization_one_side_error(error, p):
 def obs_normalization(n, p):
     return sum(binomial_coef(n, k) * pow(p, k) * pow(1-p, n-k) for k in range(n + 1))
 
-def observation_prob(num_of_tests, orig_failing, obs_failing, p, obs_norm):
+def observation_prob(num_of_tests, orig_failing, obs_failing, p):
     num_of_flips = len(orig_failing.symmetric_difference(obs_failing))
-    return pow(p, num_of_flips) / obs_norm
-    # return binom(num_of_tests, p, num_of_flips)
+    # return pow(p, num_of_flips) / obs_norm
+    return binom(num_of_tests, p, num_of_flips)
 
 
 def calc_diagnoses_probs_given_obs_prob(diagnoses, priors, faulty_comp_prob, obs_prob):
-    final_diagnoses = []
-    probs_sum = 0
-    for diagnose, old_prob in diagnoses:
-        p = non_uniform_prior(diagnose, priors) if priors else pow(faulty_comp_prob, len(diagnose))
-        p *= old_prob
-        probs_sum += p
-        final_diagnoses.append((diagnose, obs_prob * p))
-    return [(diagnose, prob / probs_sum) for diagnose,prob in final_diagnoses]
+    return [(diagnose, prob * (non_uniform_prior(diagnose, priors) if priors else pow(faulty_comp_prob, len(diagnose)))) for diagnose, prob in diagnoses]
 
 
 def non_uniform_prior(comps, priors):

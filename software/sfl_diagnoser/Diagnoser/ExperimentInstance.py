@@ -284,9 +284,9 @@ class ExperimentInstance:
         outcome = self.simulate_next_test_outcome(action)
         return outcome,self.next_state_distribution(action)[outcome][0]
 
-    def diagnose(self):
+    def diagnose(self, normalize=True):
         if self.diagnoses == []:
-            self.diagnoses=self.initials_to_DS().diagnose()
+            self.diagnoses=self.initials_to_DS().diagnose(normalize)
 
     def get_named_diagnoses(self):
         self.diagnose()

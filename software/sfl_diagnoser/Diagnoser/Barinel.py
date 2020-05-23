@@ -34,7 +34,7 @@ class Barinel:
             prob *= self.prior_probs[comps[i]]
         return prob
 
-    def generate_probs(self):
+    def generate_probs(self, normalize=True):
         new_diagnoses = []
         probs_sum = 0.0
         for diag in self.diagnoses:
@@ -47,20 +47,21 @@ class Barinel:
             e_dk = tf.maximize()
             diag.probability=e_dk * dk #temporary probability
             probs_sum += diag.probability
-        for diag in self.diagnoses:
-            temp_prob = diag.get_prob() / probs_sum
-            diag.probability=temp_prob
-            new_diagnoses.append(diag)
-        self.diagnoses = new_diagnoses
+        if normalize:
+            for diag in self.diagnoses:
+                temp_prob = diag.get_prob() / probs_sum
+                diag.probability=temp_prob
+                new_diagnoses.append(diag)
+            self.diagnoses = new_diagnoses
 
 
-    def run(self):
+    def run(self, normalize=True):
         #initialize
         self.diagnoses = []
         diags = Staccato.Staccato().run(self.M_matrix, self.e_vector)
         for diag in diags:
             self.diagnoses.append(Diagnosis.Diagnosis(diag))
         #generate probabilities
-        self.generate_probs()
+        self.generate_probs(normalize)
 
         return self.diagnoses

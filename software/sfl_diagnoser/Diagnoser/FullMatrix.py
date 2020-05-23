@@ -8,11 +8,11 @@ class FullMatrix(object):
         self.probabilities=[] # probabilities size define the num of components
         self.error=[]
 
-    def diagnose(self):
+    def diagnose(self, normalize=True):
         bar= Barinel.Barinel()
         bar.set_matrix_error(self.matrix,self.error)
         bar.set_prior_probs(self.probabilities)
-        return bar.run()
+        return bar.run(normalize)
 
     def save_to_csv_file(self, out_file):
         import csv
