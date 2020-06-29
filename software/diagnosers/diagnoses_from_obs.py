@@ -1,4 +1,4 @@
-from software.sfl_diagnoser.Diagnoser.FastBarinel import FastBarinel
+
 from software.utils import diagnoser_utils
 from software.sfl_diagnoser.Diagnoser.Experiment_Data import Experiment_Data
 
@@ -31,5 +31,6 @@ def diagnose_smart_mhs(diagnoser, faulty_comp_prob, faulty_output_prob):
         for diag in obs_diags:
             comps = tuple(sorted([components_dict[c] for c in diag.diagnosis]))
             diagnoses[comps] = diagnoses.get(comps, 0) + diag.probability * obs_prob
-    sum_probs = sum(prob for _, prob in diagnoses)
-    return [(diag, prob / sum_probs) for diag, prob in diagnoses]
+
+    sum_probs = sum(diagnoses.values())
+    return [(diag, prob / sum_probs) for diag, prob in diagnoses.items()]

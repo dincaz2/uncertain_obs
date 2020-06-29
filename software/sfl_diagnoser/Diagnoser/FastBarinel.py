@@ -33,7 +33,7 @@ class FastBarinel:
         """
 
         error_vec =  [0] * length
-        queue = deque([(error_vec, None, -1)])
+        queue = deque([(tuple(error_vec), None, -1)])
 
         saved_probs = {}
 
@@ -42,13 +42,13 @@ class FastBarinel:
             num_of_flips = [a^b for a,b in zip(error_vec, self.initial_e_vector)].count(1)
             obs_prob = saved_probs[num_of_flips] if num_of_flips in saved_probs else saved_probs.setdefault(num_of_flips, self.binom(length, p, num_of_flips))
 
-            yield error_vec, max_in_subset, obs_prob
+            yield error_vec, parent, max_in_subset, obs_prob
             if max_in_subset == length - 1:
                 continue
             for i in range(max_in_subset + 1, length):
-                copy = error_vec[:]
+                copy = list(error_vec)
                 copy[i] = 1 - copy[i]
-                queue.append((copy, error_vec, i))
+                queue.append((tuple(copy), error_vec, i))
 
     def non_uniform_prior(self, diag):
         comps = diag.get_diag()
@@ -81,22 +81,22 @@ class FastBarinel:
         comps = set(np.where(np.array(new_test_comps) == 1)[0])
         diags = set()
         for diag in old_mhs:
-            if comps & diag:
+            if comps & set(diag):
                 diags.add(diag)
             else:
                 for comp in comps:
-                    new_diag = diag.copy()
+                    new_diag = set(diag)
                     new_diag.add(comp)
-                    diags.add(new_diag)
+                    diags.add(tuple(new_diag))
         return diags
 
     def diagnose(self, faulty_comp_probs, faulty_output_prob, normalize=True):
         mhs_dict = dict()
-        for e_vector, parent_e_vector, failed_test_index, error_prob in self.error_generator(len(self.prior_probs), faulty_output_prob):
+        for e_vector, parent_e_vector, failed_test_index, error_prob in self.error_generator(len(self.M_matrix), faulty_output_prob):
             if not parent_e_vector: # first observation is "all tests passed" with only 1 diagnosis - the empty one
                 # e_vector = (0,) * len(self.prior_probs)
                 mhs_dict[e_vector] = [set()]
-                yield Diagnosis.Diagnosis(set(), error_prob)
+                yield [Diagnosis.Diagnosis(set(), 1)], error_prob
             else:
                 # e_vector = list(parent_e_vector)
                 # e_vector[failed_test_index] = 1

@@ -80,11 +80,10 @@ def readPlanningFile(fileName, delimiter=";", cut=False, use_smart_mhs = False):
         old = components, initials
         testsPool, error, components, initials = cut_matrix(testsPool, error, components, initials)
     Experiment_Data().set_values(priors, bugs, testsPool, components, estimatedTestsPool)
-    if use_smart_mhs:
-        diagnoser = FastBarinel(initials, error)
-    else:
-        diagnoser = partial(software.sfl_diagnoser.Diagnoser.ExperimentInstance.ExperimentInstance, initials)
-    return diagnoser, error, initials, old
+    diagnoser = partial(software.sfl_diagnoser.Diagnoser.ExperimentInstance.ExperimentInstance, initials)
+    smart_mhs_diagnoser = FastBarinel(initials, error)
+
+    return diagnoser, smart_mhs_diagnoser, error, initials, old
     # return software.sfl_diagnoser.Diagnoser.ExperimentInstance.ExperimentInstance(initials, error)
 
 

@@ -184,6 +184,21 @@ def run_all_diagnosers(inst, error, uncertain_tests, all_tests):
               (alg1_best_diag_card, alg2_best_diag_card, alg3_best_diag_card),\
               (alg1_mean_card, alg2_mean_card,  alg3_mean_card), faulty_output_prob
 
+
+def compare_with_smart_mhs(diagnoser, error, uncertain_tests, smart_mhs_diagnoser):
+    alg1_result, alg1_time, alg1_best_diag_card, alg1_mean_card = run_diagnoser(diagnoser, error, faulty_output_probs[0],
+                                                                                uncertain_tests)
+    print(f'\tdiags from obs (regular): {alg1_time} seconds')
+    print(f'\t\t{alg1_result}')
+
+    alg2_result, alg2_time, alg2_best_diag_card, alg2_mean_card = run_diagnoser_mhs(smart_mhs_diagnoser, faulty_output_probs[0])
+    print(f'\tdiags from obs (smart mhs): {alg2_time} seconds')
+    print(f'\t\t{alg2_result}')
+
+    yield (alg1_result, alg2_result), (alg1_time, alg2_time),\
+              (alg1_best_diag_card, alg2_best_diag_card), (alg1_mean_card, alg2_mean_card)
+
+
 def diagnoser(func):
     def func_wrapper(*args, **kwargs):
         start = time()
@@ -202,17 +217,21 @@ def diagnoser(func):
     return func_wrapper
 
 @diagnoser
-def run_diagnoser(inst, error, faulty_output_prob, uncertain_tests):
-    return diagnoses_from_obs.diagnose_all_combinations(inst, error, faulty_comp_prob, faulty_output_prob, uncertain_tests)
+def run_diagnoser(diagnoser, error, faulty_output_prob, uncertain_tests):
+    return diagnoses_from_obs.diagnose_all_combinations(diagnoser, error, faulty_comp_prob, faulty_output_prob, uncertain_tests)
 
 @diagnoser
-def run_best_diagnoser(inst, error, faulty_output_prob, uncertain_tests):
-    return best_obs.find_best_diagnoses(inst, error, faulty_comp_prob, faulty_output_prob, uncertain_tests)
+def run_diagnoser_mhs(smart_mhs_diagnoser, faulty_output_prob):
+    return diagnoses_from_obs.diagnose_smart_mhs(smart_mhs_diagnoser, faulty_comp_prob, faulty_output_prob)
 
 @diagnoser
-def run_obs_from_diagnoses(error, all_tests, faulty_output_prob, uncertain_tests):
-    return obs_from_diagnoses.diagnose_all_combinations(error, all_tests, faulty_comp_prob, faulty_output_prob, uncertain_tests)
+def run_best_diagnoser(diagnoser, error, faulty_output_prob, uncertain_tests):
+    return best_obs.find_best_diagnoses(diagnoser, error, faulty_comp_prob, faulty_output_prob, uncertain_tests)
 
 @diagnoser
-def run_reduction_based(inst, error, faulty_output_prob, uncertain_tests):
-    return reduction_based.diagnose_all_combinations(inst, error, faulty_output_prob, uncertain_tests)
+def run_obs_from_diagnoses(diagnoser, all_tests, faulty_output_prob, uncertain_tests):
+    return obs_from_diagnoses.diagnose_all_combinations(diagnoser, all_tests, faulty_comp_prob, faulty_output_prob, uncertain_tests)
+
+@diagnoser
+def run_reduction_based(diagnoser, error, faulty_output_prob, uncertain_tests):
+    return reduction_based.diagnose_all_combinations(diagnoser, error, faulty_output_prob, uncertain_tests)
