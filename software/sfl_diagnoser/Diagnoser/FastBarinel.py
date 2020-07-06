@@ -1,11 +1,7 @@
 import copy
-from software.sfl_diagnoser.Diagnoser import Diagnosis
-import software.sfl_diagnoser.Diagnoser.dynamicSpectrum
 from software.sfl_diagnoser.Diagnoser.Experiment_Data import Experiment_Data
-import software.sfl_diagnoser.Diagnoser.diagnoserUtils
 import math
 from software.sfl_diagnoser.Diagnoser import Diagnosis
-from software.sfl_diagnoser.Diagnoser import Staccato
 from software.sfl_diagnoser.Diagnoser import TF
 from collections import deque
 import numpy as np
@@ -18,7 +14,6 @@ class FastBarinel:
             map(lambda test: list(map(lambda comp: 1 if comp in test else 0, range(len(self.prior_probs)))),
                 self.TestsComponents))
         self.initial_e_vector = [error[test] for test in initial_tests]
-        # self.tests_names = list(initial_tests)
 
     def binom(self, n, p, k):
         x = k * np.log2(p) + (n - k) * np.log2(1 - p)
@@ -78,29 +73,25 @@ class FastBarinel:
         return diagnoses
 
     def incremental_mhs(self, old_mhs, new_test_comps):
-        comps = set(np.where(np.array(new_test_comps) == 1)[0])
+        comps = frozenset(np.where(np.array(new_test_comps) == 1)[0])
         diags = set()
         for diag in old_mhs:
-            if comps & set(diag):
+            if comps & diag:
                 diags.add(diag)
             else:
                 for comp in comps:
-                    new_diag = set(diag)
-                    new_diag.add(comp)
-                    diags.add(tuple(new_diag))
+                    new_diag = diag | {comp}
+                    if all(d == diag or not d.issubset(new_diag) for d in old_mhs):
+                        diags.add(new_diag)
         return diags
 
     def diagnose(self, faulty_comp_probs, faulty_output_prob, normalize=True):
         mhs_dict = dict()
         for e_vector, parent_e_vector, failed_test_index, error_prob in self.error_generator(len(self.M_matrix), faulty_output_prob):
             if not parent_e_vector: # first observation is "all tests passed" with only 1 diagnosis - the empty one
-                # e_vector = (0,) * len(self.prior_probs)
-                mhs_dict[e_vector] = [set()]
+                mhs_dict[e_vector] = [frozenset()]
                 yield [Diagnosis.Diagnosis(set(), 1)], error_prob
             else:
-                # e_vector = list(parent_e_vector)
-                # e_vector[failed_test_index] = 1
-                # e_vector = tuple(e_vector)
                 diags = self.incremental_mhs(mhs_dict[parent_e_vector], self.M_matrix[failed_test_index])
                 mhs_dict[e_vector] = diags
                 diagnoses = [Diagnosis.Diagnosis(diag) for diag in diags]
@@ -109,15 +100,3 @@ class FastBarinel:
                 # for diag in self.generate_probs(diagnoses, e_vector, faulty_comp_probs, normalize):
                 #     diag.probability *= error_prob
                 #     yield diag
-
-    # def diagnose(self, prior_p=0.05, normalize=True):
-    #     fullM, chosen = FullMatrix.optimize_FullMatrix(self.convertToFullMatrix())
-    #     chosenDict = dict(enumerate(chosen))
-    #     Opt_diagnoses = self.run(prior_p, normalize)
-    #     diagnoses = []
-    #     for diag in Opt_diagnoses:
-    #         diag = diag.clone()
-    #         diag_comps = [chosenDict[x] for x in diag.diagnosis]
-    #         diag.diagnosis = list(diag_comps)
-    #         diagnoses.append(diag)
-    #     return diagnoses

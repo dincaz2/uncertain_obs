@@ -1,7 +1,7 @@
 __author__ = 'amir'
 
-from pyswarm import pso
-from software.sfl_diagnoser.Diagnoser.LightPSO import LightPSO
+# from pyswarm import pso
+# from software.sfl_diagnoser.Diagnoser.LightPSO import LightPSO
 import operator
 import functools
 

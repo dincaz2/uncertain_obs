@@ -17,7 +17,9 @@ def find_matrix_index(matrices, matrix):
 def filter_low(matrix_name):
     comps, tests = list(map(int, matrix_name.split('_')[:2]))
     # return (7 <= comps <= 9 and 10 <= tests <= 13) or (7 <= tests <= 9 and 10 <= comps <= 13)
-    return 11 <= comps <= 12 and 11 <= tests <= 12
+    min_num = 1
+    max_num = 14
+    return min_num <= comps <= max_num and min_num <= tests <= max_num
 
 def pipeline(folder, output):
     matrices = [file for file in os.listdir(folder) if file.endswith('.matrix')]
@@ -48,6 +50,8 @@ def pipeline(folder, output):
             num_of_tests = len(all_tests)
             num_failing_tests = error_vec.count(1)
             sample_num = int(matrix_file.split('.')[0].split('_')[2])
+            # if sample_num != 2:
+            #     continue
             print(f'comps: {num_of_comps}, tests: {num_of_tests}, failing: {num_failing_tests}')
 
             for results, time, best_diag_card, mean_card in compare_with_smart_mhs(diagnoser, error, all_tests, smart_mhs_diagnoser):

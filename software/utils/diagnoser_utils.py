@@ -195,6 +195,14 @@ def compare_with_smart_mhs(diagnoser, error, uncertain_tests, smart_mhs_diagnose
     print(f'\tdiags from obs (smart mhs): {alg2_time} seconds')
     print(f'\t\t{alg2_result}')
 
+    # if alg1_result != alg2_result:
+    #     print('Unequal results!')
+    #     print(f'\tdiags from obs (regular): {alg1_time} seconds')
+    #     print(f'\t\t{alg1_result}')
+    #     print(f'\tdiags from obs (smart mhs): {alg2_time} seconds')
+    #     print(f'\t\t{alg2_result}')
+    #     raise
+
     yield (alg1_result, alg2_result), (alg1_time, alg2_time),\
               (alg1_best_diag_card, alg2_best_diag_card), (alg1_mean_card, alg2_mean_card)
 
